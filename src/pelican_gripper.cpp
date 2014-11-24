@@ -48,8 +48,8 @@ void callback(const asctec_hlp_comm::mav_rcdataConstPtr& msg) {
         write(fd, &cmd, 1);
         counter = 0;
         // read byte
-        bytes_read = read(fd, buf, 1);
-        ROS_INFO("Received %d byte: %d", bytes_read, int(buf[0]));
+        bytes_read = read(fd, buf, 10);
+        ROS_INFO("Received %d byte: %d %d", bytes_read, int(buf[0]), int(buf[1]));
     }
     else {
         counter++;
