@@ -21,13 +21,22 @@ int ctrl_switch;
 //    write(fd, &tbyte[i], 1);
 //}
 
+// Processing uses KeyEvent values from Java, which are:
+// (source: http://docs.oracle.com/javase/6/docs/api/constant-values.html#java.awt.event.KeyEvent.VK_UP)
+// UP: 38
+// DOWN: 40
+// RIGHT: 39
+// LEFT: 37
+
 void callback(const asctec_hlp_comm::mav_rcdataConstPtr& msg) {
-    if (msg->channel.at(ctrl_switch) < 0.0) {
-
+    unsigned char cmd;
+    if (msg->channel.at(ctrl_switch) < 200) {
+        cmd = 0x28; //unsigned char(40);
     }
-    else if (msg->channel.at(ctrl_switch) > 0.0) {
-
+    else if (msg->channel.at(ctrl_switch) > 4000) {
+        cmd = 0x27; //unsigned char(38);
     }
+    write(fd, &cmd, 1);
 }
 
 int main(int argc, char* argv[]) {
@@ -70,8 +79,11 @@ int main(int argc, char* argv[]) {
   port_settings.c_lflag = 0;
   tcsetattr(fd, TCSANOW, &port_settings); // apply the settings to the port
 
-  ros::Subscriber sub = n.subscribe<asctec_hlp_comm::mav_rcdata>("rc_data", 1, callback);
+  ros::Subscriber sub = n.subscribe<asctec_hlp_comm::mav_rcdata>("rcdata", 1, callback);
 
   ros::spin();
+
+  close(fd);
+
   return 0;
 }
