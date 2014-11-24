@@ -27,8 +27,12 @@
 
 int fd;
 int pan, tilt, pump;
+int pan_left, pan_right;
+int tilt_up, tilt_down;
 bool pump_on = false;
 int counter = 0;
+unsigned char pan_cmd = 0x00;
+unsigned char tilt_cmd = 0x00;
 
 void callback(const sensor_msgs::JoyConstPtr& msg) {
     unsigned char cmd;
@@ -48,6 +52,61 @@ void callback(const sensor_msgs::JoyConstPtr& msg) {
             pump_on = false;
         }
     }
+    if (counter > 5) {
+        counter = 0;
+        if (msg->buttons.at(pan_left) == 1 &&
+                msg->buttons.at(pan_right) == 0) {
+            // firstly, choose motor ID 2
+            cmd = 0x7A; //122;
+            write(fd, &cmd, 1);
+            // then send actual angle
+            pan_cmd += 2;
+            if (pan_cmd > 120) {
+                pan_cmd = 118;
+            }
+            write(fd, &pan_cmd, 1);
+        }
+        if (msg->buttons.at(pan_right) == 1 &&
+                msg->buttons.at(pan_left) == 0) {
+            // firstly, choose motor ID 2
+            cmd = 0x7A; //122;
+            write(fd, &cmd, 1);
+            // then send actual angle
+            pan_cmd -= 2;
+            if (pan_cmd < 0) {
+                pan_cmd = 0;
+            }
+            write(fd, &pan_cmd, 1);
+        }
+        if (msg->buttons.at(tilt_up) == 1 &&
+                msg->buttons.at(tilt_down) == 0) {
+            // firstly, choose motor ID 1
+            cmd = 0x79; //121;
+            write(fd, &cmd, 1);
+            // then send actual angle
+            tilt_cmd += 2;
+            if (tilt_cmd > 120) {
+                tilt_cmd = 118;
+            }
+            write(fd, &tilt_cmd, 1);
+        }
+        if (msg->buttons.at(tilt_down) == 1 &&
+                msg->buttons.at(tilt_up) == 0) {
+            // firstly, choose motor ID 1
+            cmd = 0x79; //121;
+            write(fd, &cmd, 1);
+            // then send actual angle
+            tilt_cmd -= 2;
+            if (tilt_cmd < 0) {
+                tilt_cmd = 0;
+            }
+            write(fd, &tilt_cmd, 1);
+        }
+    }
+    else {
+        counter++;
+    }
+    /*
     if (msg->axes.at(pan) != 0.0) {
         // firstly, choose motor ID 2
         cmd = 0x7A; //122;
@@ -76,6 +135,7 @@ void callback(const sensor_msgs::JoyConstPtr& msg) {
         write(fd, &cmd, 1);
         ROS_INFO("Tilt command: %d", val);
     }
+    */
 }
 
 int main(int argc, char* argv[]) {
@@ -89,6 +149,10 @@ int main(int argc, char* argv[]) {
     n_priv.param<int>("pan_axis", pan, int(2));
     n_priv.param<int>("tilt_axis", tilt, int(3));
     n_priv.param<int>("pump_button", pump, int(3));
+    n_priv.param<int>("pan_left", pan_left, int(4));
+    n_priv.param<int>("pan_right", pan_right, int(6));
+    n_priv.param<int>("tilt_up", tilt_up, int(5));
+    n_priv.param<int>("tilt_down", tilt_down, int(7));
 
     fd = open(port.c_str(), O_RDWR | O_NOCTTY | O_NDELAY | O_NONBLOCK);
     struct termios port_settings; // structure to store the port settings in
