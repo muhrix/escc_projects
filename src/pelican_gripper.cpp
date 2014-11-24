@@ -32,21 +32,24 @@ void callback(const asctec_hlp_comm::mav_rcdataConstPtr& msg) {
     unsigned char cmd;
     if (msg->channel.at(ctrl_switch) < 200) {
         cmd = 0x28; //unsigned char(40);
+        ROS_INFO("Closing gripper");
     }
     else if (msg->channel.at(ctrl_switch) > 4000) {
         cmd = 0x27; //unsigned char(38);
+        ROS_INFO("Opening gripper");
     }
     write(fd, &cmd, 1);
 }
 
 int main(int argc, char* argv[]) {
   ros::init(argc, argv, "gripper");
-  ros::NodeHandle n("~");
+  ros::NodeHandle n;
+  ros::NodeHandle n_priv("~");
   std::string port;
   int baud;
-  n.param<std::string>("port", port, std::string("/dev/ttyACM0"));
-  n.param<int>("baud", baud, int(57600));
-  n.param<int>("gripper_switch", ctrl_switch, int(6));
+  n_priv.param<std::string>("port", port, std::string("/dev/ttyACM0"));
+  n_priv.param<int>("baud", baud, int(57600));
+  n_priv.param<int>("gripper_switch", ctrl_switch, int(6));
 
   fd = open(port.c_str(), O_RDWR | O_NOCTTY | O_NDELAY | O_NONBLOCK);
   struct termios port_settings; // structure to store the port settings in
