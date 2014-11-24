@@ -35,15 +35,15 @@ int counter = 0;
 // LEFT: 37
 
 void callback(const asctec_hlp_comm::mav_rcdataConstPtr& msg) {
-    if (counter > 7) {
-        if (msg->channel.at(ctrl_switch) < 200) {
+    if (counter > 5) {
+        if (msg->channel.at(ctrl_switch) > 3100) {
             cmd--;
             if (cmd < 48) {
                 cmd = 48;
             }
             ROS_INFO("Closing gripper: %d", int(cmd));
         }
-        else if (msg->channel.at(ctrl_switch) > 4000) {
+        else if (msg->channel.at(ctrl_switch) < 800) {
             cmd++;
             ROS_INFO("Opening gripper: %d", int(cmd));
         }
