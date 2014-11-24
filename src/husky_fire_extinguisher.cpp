@@ -87,6 +87,7 @@ void callback(const sensor_msgs::JoyConstPtr& msg) {
         // firstly, choose motor ID 1
         cmd = 0x79; //121;
         write(fd, &cmd, 1);
+        ROS_INFO("Motor ID command: %d", int(cmd));
         // then send actual angle
         tilt_cmd += 2;
         if (tilt_cmd > 120) {
@@ -100,6 +101,7 @@ void callback(const sensor_msgs::JoyConstPtr& msg) {
         // firstly, choose motor ID 1
         cmd = 0x79; //121;
         write(fd, &cmd, 1);
+        ROS_INFO("Motor ID command: %d", int(cmd));
         // then send actual angle
         tilt_cmd -= 2;
         if (tilt_cmd < 0) {
