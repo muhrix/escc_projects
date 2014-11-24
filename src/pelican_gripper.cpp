@@ -32,11 +32,11 @@ unsigned char cmd;
 void callback(const asctec_hlp_comm::mav_rcdataConstPtr& msg) {
     if (msg->channel.at(ctrl_switch) < 200) {
         cmd--;
-        ROS_INFO("Closing gripper");
+        ROS_INFO("Closing gripper: %d", int(cmd));
     }
     else if (msg->channel.at(ctrl_switch) > 4000) {
         cmd++;
-        ROS_INFO("Opening gripper");
+        ROS_INFO("Opening gripper: %d", int(cmd));
     }
     write(fd, &cmd, 1);
 }
