@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
   std::string port;
   int baud;
   n_priv.param<std::string>("port", port, std::string("/dev/ttyACM0"));
-  n_priv.param<int>("baud", baud, int(57600));
+  n_priv.param<int>("baud", baud, int(115200));
   n_priv.param<int>("gripper_switch", ctrl_switch, int(6));
 
   fd = open(port.c_str(), O_RDWR | O_NOCTTY | O_NDELAY | O_NONBLOCK);
