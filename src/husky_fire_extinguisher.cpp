@@ -28,6 +28,7 @@
 int fd;
 int pan, tilt, pump;
 bool pump_on = false;
+int counter = 0;
 
 void callback(const sensor_msgs::JoyConstPtr& msg) {
     unsigned char cmd;
@@ -59,6 +60,7 @@ void callback(const sensor_msgs::JoyConstPtr& msg) {
         int val = 59 - int(msg->axes.at(pan) * 59);
         cmd = (unsigned char)(val);
         write(fd, &cmd, 1);
+        ROS_INFO("Pan command: %d", val);
     }
     if (msg->axes.at(tilt) != 0.0) {
         // firstly, choose motor ID 1
@@ -72,6 +74,7 @@ void callback(const sensor_msgs::JoyConstPtr& msg) {
         int val = 59 + int(msg->axes.at(tilt) * 59);
         cmd = (unsigned char)(val);
         write(fd, &cmd, 1);
+        ROS_INFO("Tilt command: %d", val);
     }
 }
 
