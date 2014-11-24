@@ -41,6 +41,7 @@ void callback(const sensor_msgs::JoyConstPtr& msg) {
             // write command to serial port to activate pump
             cmd = 0x7C; //124;
             write(fd, &cmd, 1);
+            ROS_INFO("Pump command: %d", int(cmd));
             pump_on = true;
         }
     }
@@ -49,62 +50,63 @@ void callback(const sensor_msgs::JoyConstPtr& msg) {
             // write command to turn off water pump
             cmd = 0x7B; //123;
             write(fd, &cmd, 1);
+            ROS_INFO("Pump command: %d", int(cmd));
             pump_on = false;
         }
     }
-    if (counter > 5) {
-        counter = 0;
-        if (msg->buttons.at(pan_left) == 1 &&
-                msg->buttons.at(pan_right) == 0) {
-            // firstly, choose motor ID 2
-            cmd = 0x7A; //122;
-            write(fd, &cmd, 1);
-            // then send actual angle
-            pan_cmd += 2;
-            if (pan_cmd > 120) {
-                pan_cmd = 118;
-            }
-            write(fd, &pan_cmd, 1);
+    if (msg->buttons.at(pan_left) == 1 &&
+            msg->buttons.at(pan_right) == 0) {
+        // firstly, choose motor ID 2
+        cmd = 0x7A; //122;
+        write(fd, &cmd, 1);
+        ROS_INFO("Motor ID command: %d", int(cmd));
+        // then send actual angle
+        pan_cmd += 2;
+        if (pan_cmd > 120) {
+            pan_cmd = 118;
         }
-        if (msg->buttons.at(pan_right) == 1 &&
-                msg->buttons.at(pan_left) == 0) {
-            // firstly, choose motor ID 2
-            cmd = 0x7A; //122;
-            write(fd, &cmd, 1);
-            // then send actual angle
-            pan_cmd -= 2;
-            if (pan_cmd < 0) {
-                pan_cmd = 0;
-            }
-            write(fd, &pan_cmd, 1);
-        }
-        if (msg->buttons.at(tilt_up) == 1 &&
-                msg->buttons.at(tilt_down) == 0) {
-            // firstly, choose motor ID 1
-            cmd = 0x79; //121;
-            write(fd, &cmd, 1);
-            // then send actual angle
-            tilt_cmd += 2;
-            if (tilt_cmd > 120) {
-                tilt_cmd = 118;
-            }
-            write(fd, &tilt_cmd, 1);
-        }
-        if (msg->buttons.at(tilt_down) == 1 &&
-                msg->buttons.at(tilt_up) == 0) {
-            // firstly, choose motor ID 1
-            cmd = 0x79; //121;
-            write(fd, &cmd, 1);
-            // then send actual angle
-            tilt_cmd -= 2;
-            if (tilt_cmd < 0) {
-                tilt_cmd = 0;
-            }
-            write(fd, &tilt_cmd, 1);
-        }
+        write(fd, &pan_cmd, 1);
+        ROS_INFO("Pan command: %d", int(pan_cmd));
     }
-    else {
-        counter++;
+    if (msg->buttons.at(pan_right) == 1 &&
+            msg->buttons.at(pan_left) == 0) {
+        // firstly, choose motor ID 2
+        cmd = 0x7A; //122;
+        write(fd, &cmd, 1);
+        ROS_INFO("Motor ID command: %d", int(cmd));
+        // then send actual angle
+        pan_cmd -= 2;
+        if (pan_cmd < 0) {
+            pan_cmd = 0;
+        }
+        write(fd, &pan_cmd, 1);
+        ROS_INFO("Pan command: %d", int(pan_cmd));
+    }
+    if (msg->buttons.at(tilt_up) == 1 &&
+            msg->buttons.at(tilt_down) == 0) {
+        // firstly, choose motor ID 1
+        cmd = 0x79; //121;
+        write(fd, &cmd, 1);
+        // then send actual angle
+        tilt_cmd += 2;
+        if (tilt_cmd > 120) {
+            tilt_cmd = 118;
+        }
+        write(fd, &tilt_cmd, 1);
+        ROS_INFO("Tilt command: %d", int(tilt_cmd));
+    }
+    if (msg->buttons.at(tilt_down) == 1 &&
+            msg->buttons.at(tilt_up) == 0) {
+        // firstly, choose motor ID 1
+        cmd = 0x79; //121;
+        write(fd, &cmd, 1);
+        // then send actual angle
+        tilt_cmd -= 2;
+        if (tilt_cmd < 0) {
+            tilt_cmd = 0;
+        }
+        write(fd, &tilt_cmd, 1);
+        ROS_INFO("Tilt command: %d", int(tilt_cmd));
     }
     /*
     if (msg->axes.at(pan) != 0.0) {
