@@ -14,49 +14,78 @@
 #include <fcntl.h>  // File control definitions
 #include <termios.h> // POSIX terminal control definitions
 
-// Shift key turns on the pump
-// Ctrl key turns off the pump
-// Right key selects the motor ID 1
-// Left key selects the motor ID 2
+// Shift key turns on the pump -- serial.write(124)
+// Ctrl key turns off the pump -- serial.write(123);
+// Right key selects the motor ID 1 -- serial.write(121)
+// Left key selects the motor ID 2  -- serial.write(122)
 // Up key moves motor
 // Down key moves motor
+// maximum value is 120 and step is 2
+
+// pan is motor ID 2
+// tilt is motor ID 1
 
 int fd;
 int pan, tilt, pump;
+bool pump_on = false;
 
 void callback(const sensor_msgs::JoyConstPtr& msg) {
     unsigned char cmd;
     if (msg->buttons.at(pump) == 1) {
-        // write command to serial port to activate pump
+        if (pump_on == false) {
+            // write command to serial port to activate pump
+            cmd = 0x7C; //124;
+            write(fd, &cmd, 1);
+            pump_on = true;
+        }
     }
     else if (msg->buttons.at(pump) == 0) {
-        // write command to turn off water pump
+        if (pump_on == true) {
+            // write command to turn off water pump
+            cmd = 0x7B; //123;
+            write(fd, &cmd, 1);
+            pump_on = false;
+        }
     }
-    if (msg->axes.at(pan) > 0.0) {
-        // move right (send right arrow character)
-
+    if (msg->axes.at(pan) != 0.0) {
+        // firstly, choose motor ID 2
+        cmd = 0x7A; //122;
+        write(fd, &cmd, 1);
+        // then send actual angle
+        // left-most joystick  = 1.0
+        // right-most joystick = -1.0
+        // left-most value  = 0
+        // right-most value = 120
+        int val = 59 - int(msg->axes.at(pan) * 59);
+        cmd = (unsigned char)(val);
+        write(fd, &cmd, 1);
     }
-    else if (msg->axes.at(pan) < 0.0) {
-        // move left (send left arrow character)
-    }
-    if (msg->axes.at(tilt) > 0.0) {
-        // move down
-    }
-    else if (msg->axes.at(tilt) < 0.0) {
-        // move up
+    if (msg->axes.at(tilt) != 0.0) {
+        // firstly, choose motor ID 1
+        cmd = 0x79; //121;
+        write(fd, &cmd, 1);
+        // then send actual angle
+        // up-most joystick   = 1.0
+        // down-most joystick = -1.0
+        // up-most value   = 120
+        // down-most value = 0
+        int val = 59 + int(msg->axes.at(tilt) * 59);
+        cmd = (unsigned char)(val);
+        write(fd, &cmd, 1);
     }
 }
 
 int main(int argc, char* argv[]) {
     ros::init(argc, argv, "fire_extinguisher");
-    ros::NodeHandle n("~");
+    ros::NodeHandle n;
+    ros::NodeHandle n_priv("~");
     std::string port;
     int baud;
-    n.param<std::string>("port", port, std::string("/dev/ttyUSB0"));
-    n.param<int>("baud", baud, int(57600));
-    n.param<int>("pan_axis", pan, int(2));
-    n.param<int>("tilt_axis", tilt, int(3));
-    n.param<int>("pump_button", pump, int(3));
+    n_priv.param<std::string>("port", port, std::string("/dev/ttyUSB2"));
+    n_priv.param<int>("baud", baud, int(9600));
+    n_priv.param<int>("pan_axis", pan, int(2));
+    n_priv.param<int>("tilt_axis", tilt, int(3));
+    n_priv.param<int>("pump_button", pump, int(3));
 
     fd = open(port.c_str(), O_RDWR | O_NOCTTY | O_NDELAY | O_NONBLOCK);
     struct termios port_settings; // structure to store the port settings in

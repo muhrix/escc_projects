@@ -23,16 +23,8 @@ int bytes_read;
 int counter = 0;
 
 
-//for (int i = 0; i < cnt; i++) {
-//    write(fd, &tbyte[i], 1);
-//}
-
-// Processing uses KeyEvent values from Java, which are:
-// (source: http://docs.oracle.com/javase/6/docs/api/constant-values.html#java.awt.event.KeyEvent.VK_UP)
-// UP: 38
-// DOWN: 40
-// RIGHT: 39
-// LEFT: 37
+// I must send 48 as the "wide-open position", whilst 54 is the maximum range
+// for the gripper to be closed...
 
 void callback(const asctec_hlp_comm::mav_rcdataConstPtr& msg) {
     if (counter > 5) {
