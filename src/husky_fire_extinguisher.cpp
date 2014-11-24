@@ -120,6 +120,7 @@ int main(int argc, char* argv[]) {
 
     ros::Subscriber sub = n.subscribe<sensor_msgs::Joy>("joy", 1, callback);
 
+    ROS_INFO("Fire extinguisher node started");
     ros::spin();
 
     close(fd);
