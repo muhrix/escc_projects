@@ -33,6 +33,7 @@ bool pump_on = false;
 int counter = 0;
 unsigned char pan_cmd = 0x00;
 unsigned char tilt_cmd = 0x00;
+int motor_id = 0;
 
 void callback(const sensor_msgs::JoyConstPtr& msg) {
     unsigned char cmd;
@@ -56,10 +57,13 @@ void callback(const sensor_msgs::JoyConstPtr& msg) {
     }
     if (msg->buttons.at(pan_left) == 1 &&
             msg->buttons.at(pan_right) == 0) {
-        // firstly, choose motor ID 2
-        cmd = 0x7A; //122;
-        write(fd, &cmd, 1);
-        ROS_INFO("Motor ID command: %d", int(cmd));
+        if (motor_id != 2) {
+            motor_id = 2;
+            // firstly, choose motor ID 2
+            cmd = 0x7A; //122;
+            write(fd, &cmd, 1);
+            ROS_INFO("Motor ID command: %d", int(cmd));
+        }
         // then send actual angle
         pan_cmd += 2;
         if (pan_cmd > 120) {
@@ -70,10 +74,13 @@ void callback(const sensor_msgs::JoyConstPtr& msg) {
     }
     if (msg->buttons.at(pan_right) == 1 &&
             msg->buttons.at(pan_left) == 0) {
-        // firstly, choose motor ID 2
-        cmd = 0x7A; //122;
-        write(fd, &cmd, 1);
-        ROS_INFO("Motor ID command: %d", int(cmd));
+        if (motor_id != 2) {
+            motor_id = 2;
+            // firstly, choose motor ID 2
+            cmd = 0x7A; //122;
+            write(fd, &cmd, 1);
+            ROS_INFO("Motor ID command: %d", int(cmd));
+        }
         // then send actual angle
         pan_cmd -= 2;
         if (pan_cmd < 0) {
@@ -84,10 +91,13 @@ void callback(const sensor_msgs::JoyConstPtr& msg) {
     }
     if (msg->buttons.at(tilt_up) == 1 &&
             msg->buttons.at(tilt_down) == 0) {
-        // firstly, choose motor ID 1
-        cmd = 0x79; //121;
-        write(fd, &cmd, 1);
-        ROS_INFO("Motor ID command: %d", int(cmd));
+        if (motor_id != 1) {
+            motor_id = 1;
+            // firstly, choose motor ID 1
+            cmd = 0x79; //121;
+            write(fd, &cmd, 1);
+            ROS_INFO("Motor ID command: %d", int(cmd));
+        }
         // then send actual angle
         tilt_cmd += 2;
         if (tilt_cmd > 120) {
@@ -98,10 +108,13 @@ void callback(const sensor_msgs::JoyConstPtr& msg) {
     }
     if (msg->buttons.at(tilt_down) == 1 &&
             msg->buttons.at(tilt_up) == 0) {
-        // firstly, choose motor ID 1
-        cmd = 0x79; //121;
-        write(fd, &cmd, 1);
-        ROS_INFO("Motor ID command: %d", int(cmd));
+        if (motor_id != 1) {
+            motor_id = 1;
+            // firstly, choose motor ID 1
+            cmd = 0x79; //121;
+            write(fd, &cmd, 1);
+            ROS_INFO("Motor ID command: %d", int(cmd));
+        }
         // then send actual angle
         tilt_cmd -= 2;
         if (tilt_cmd < 0) {
