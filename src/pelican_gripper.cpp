@@ -35,9 +35,12 @@ int counter = 0;
 // LEFT: 37
 
 void callback(const asctec_hlp_comm::mav_rcdataConstPtr& msg) {
-    if (counter > 10) {
+    if (counter > 7) {
         if (msg->channel.at(ctrl_switch) < 200) {
             cmd--;
+            if (cmd < 48) {
+                cmd = 48;
+            }
             ROS_INFO("Closing gripper: %d", int(cmd));
         }
         else if (msg->channel.at(ctrl_switch) > 4000) {
@@ -48,8 +51,8 @@ void callback(const asctec_hlp_comm::mav_rcdataConstPtr& msg) {
         write(fd, &cmd, 1);
         counter = 0;
         // read byte
-        bytes_read = read(fd, buf, 10);
-        ROS_INFO("Received %d byte: %c%c", bytes_read, int(buf[0]), int(buf[1]));
+        //bytes_read = read(fd, buf, 10);
+        //ROS_INFO("Received %d byte: %c%c", bytes_read, int(buf[0]), int(buf[1]));
     }
     else {
         counter++;
