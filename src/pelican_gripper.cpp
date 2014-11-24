@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
     n_priv.param<int>("baud", baud, int(115200));
     n_priv.param<int>("gripper_switch", ctrl_switch, int(6));
 
-    cmd = 48;
+    cmd = 0x30; //48;
 
     fd = open(port.c_str(), O_RDWR | O_NOCTTY | O_NDELAY | O_NONBLOCK);
     struct termios port_settings; // structure to store the port settings in
