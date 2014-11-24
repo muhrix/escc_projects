@@ -14,6 +14,13 @@
 #include <fcntl.h>  // File control definitions
 #include <termios.h> // POSIX terminal control definitions
 
+// Shift key turns on the pump
+// Ctrl key turns off the pump
+// Right key selects the motor ID 1
+// Left key selects the motor ID 2
+// Up key moves motor
+// Down key moves motor
+
 int fd;
 int pan, tilt, pump;
 
@@ -85,5 +92,8 @@ int main(int argc, char* argv[]) {
     ros::Subscriber sub = n.subscribe<sensor_msgs::Joy>("joy", 1, callback);
 
     ros::spin();
+
+    close(fd);
+
     return 0;
 }

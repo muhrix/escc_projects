@@ -13,11 +13,15 @@
 #include <unistd.h> // UNIX standard function definitions
 #include <fcntl.h>  // File control definitions
 #include <termios.h> // POSIX terminal control definitions
+#include <pthread.h>
 
 int fd;
 int ctrl_switch;
 unsigned char cmd;
+unsigned char buf[10];
+int bytes_read;
 int counter = 0;
+
 
 //for (int i = 0; i < cnt; i++) {
 //    write(fd, &tbyte[i], 1);
@@ -40,8 +44,12 @@ void callback(const asctec_hlp_comm::mav_rcdataConstPtr& msg) {
             cmd++;
             ROS_INFO("Opening gripper: %d", int(cmd));
         }
+        // write byte
         write(fd, &cmd, 1);
         counter = 0;
+        // read byte
+        bytes_read = read(fd, buf, 1);
+        ROS_INFO("Received %d byte: %d", bytes_read, int(buf[0]));
     }
     else {
         counter++;
