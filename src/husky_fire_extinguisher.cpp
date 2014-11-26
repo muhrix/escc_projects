@@ -125,6 +125,7 @@ void callback(const sensor_msgs::JoyConstPtr& msg) {
         write(fd, &tilt_cmd, 1);
         ROS_INFO("Tilt command: %d", int(tilt_cmd));
     }
+    int val = 0;
     // control pan motor with analog directional stick (right-left)
     if (motor_id != 2) {
         motor_id = 2;
@@ -137,7 +138,7 @@ void callback(const sensor_msgs::JoyConstPtr& msg) {
     // right-most joystick = -1.0
     // left-most value  = 0
     // right-most value = 120
-    int val = 59 - int(msg->axes.at(pan) * 59);
+    val = 59 - int(msg->axes.at(pan) * 59);
     cmd = (unsigned char)(val);
     write(fd, &cmd, 1);
     ROS_INFO("Pan command: %d", val);
@@ -153,7 +154,7 @@ void callback(const sensor_msgs::JoyConstPtr& msg) {
     // down-most joystick = -1.0
     // up-most value   = 120
     // down-most value = 0
-    int val = 59 + int(msg->axes.at(tilt) * 59);
+    val = 59 + int(msg->axes.at(tilt) * 59);
     cmd = (unsigned char)(val);
     write(fd, &cmd, 1);
     ROS_INFO("Tilt command: %d", val);
