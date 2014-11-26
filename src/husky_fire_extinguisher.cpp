@@ -125,6 +125,7 @@ void callback(const sensor_msgs::JoyConstPtr& msg) {
         write(fd, &tilt_cmd, 1);
         ROS_INFO("Tilt command: %d", int(tilt_cmd));
     }
+    /*
     if (counter > 5) {
         counter = 0;
 
@@ -165,6 +166,7 @@ void callback(const sensor_msgs::JoyConstPtr& msg) {
     else {
         counter++;
     }
+    */
 }
 
 int main(int argc, char* argv[]) {
