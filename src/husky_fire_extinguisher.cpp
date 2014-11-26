@@ -37,6 +37,7 @@ int motor_id = 0;
 
 void callback(const sensor_msgs::JoyConstPtr& msg) {
     unsigned char cmd;
+    // control water pump (on and off)
     if (msg->buttons.at(pump) == 1) {
         if (pump_on == false) {
             // write command to serial port to activate pump
@@ -55,6 +56,7 @@ void callback(const sensor_msgs::JoyConstPtr& msg) {
             pump_on = false;
         }
     }
+    // control pan and tilt motors with digital buttons
     if (msg->buttons.at(pan_left) == 1 &&
             msg->buttons.at(pan_right) == 0) {
         if (motor_id != 2) {
@@ -123,36 +125,38 @@ void callback(const sensor_msgs::JoyConstPtr& msg) {
         write(fd, &tilt_cmd, 1);
         ROS_INFO("Tilt command: %d", int(tilt_cmd));
     }
-    /*
-    if (msg->axes.at(pan) != 0.0) {
+    // control pan motor with analog directional stick (right-left)
+    if (motor_id != 2) {
+        motor_id = 2;
         // firstly, choose motor ID 2
         cmd = 0x7A; //122;
         write(fd, &cmd, 1);
-        // then send actual angle
-        // left-most joystick  = 1.0
-        // right-most joystick = -1.0
-        // left-most value  = 0
-        // right-most value = 120
-        int val = 59 - int(msg->axes.at(pan) * 59);
-        cmd = (unsigned char)(val);
-        write(fd, &cmd, 1);
-        ROS_INFO("Pan command: %d", val);
     }
-    if (msg->axes.at(tilt) != 0.0) {
+    // then send actual angle
+    // left-most joystick  = 1.0
+    // right-most joystick = -1.0
+    // left-most value  = 0
+    // right-most value = 120
+    int val = 59 - int(msg->axes.at(pan) * 59);
+    cmd = (unsigned char)(val);
+    write(fd, &cmd, 1);
+    ROS_INFO("Pan command: %d", val);
+    // control tilt motor with analog directional stick (up-down)
+    if (motor_id != 1) {
+        motor_id = 1;
         // firstly, choose motor ID 1
         cmd = 0x79; //121;
         write(fd, &cmd, 1);
-        // then send actual angle
-        // up-most joystick   = 1.0
-        // down-most joystick = -1.0
-        // up-most value   = 120
-        // down-most value = 0
-        int val = 59 + int(msg->axes.at(tilt) * 59);
-        cmd = (unsigned char)(val);
-        write(fd, &cmd, 1);
-        ROS_INFO("Tilt command: %d", val);
     }
-    */
+    // then send actual angle
+    // up-most joystick   = 1.0
+    // down-most joystick = -1.0
+    // up-most value   = 120
+    // down-most value = 0
+    int val = 59 + int(msg->axes.at(tilt) * 59);
+    cmd = (unsigned char)(val);
+    write(fd, &cmd, 1);
+    ROS_INFO("Tilt command: %d", val);
 }
 
 int main(int argc, char* argv[]) {

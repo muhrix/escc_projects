@@ -22,12 +22,19 @@ unsigned char buf[10];
 int bytes_read;
 int counter = 0;
 
+int arduino_map(int x, int in_min, int in_max, int out_min, int out_max)
+{
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
 
 // I must send 48 as the "wide-open position", whilst 54 is the maximum range
 // for the gripper to be closed...
+// 48 is equivalent to 0, whilst 54 is equivalent to 120
 
 void callback(const asctec_hlp_comm::mav_rcdataConstPtr& msg) {
     if (counter > 5) {
+        counter = 0;
+        /*
         if (msg->channel.at(ctrl_switch) > 3100) {
             cmd--;
             if (cmd < 48) {
@@ -41,14 +48,19 @@ void callback(const asctec_hlp_comm::mav_rcdataConstPtr& msg) {
         }
         // write byte
         write(fd, &cmd, 1);
-        counter = 0;
         // read byte
         //bytes_read = read(fd, buf, 10);
-        //ROS_INFO("Received %d byte: %c%c", bytes_read, int(buf[0]), int(buf[1]));
+        //ROS_INFO("Sonar range: %d", int(buf[0]));
+        */
+        // the implementation below by-passes the incremental step control
+        // and uses the know switch value to interpolate between 0 and 120
+        cmd = (unsigned char)(arduino_map(msg->channel.at(ctrl_switch),
+                                          0, 4096, 0, 120));
+        write(fd, &cmd, 1);
     }
     else {
         counter++;
-    }
+    }    
 }
 
 int main(int argc, char* argv[]) {
